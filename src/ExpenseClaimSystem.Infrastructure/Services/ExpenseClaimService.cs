@@ -14,6 +14,10 @@ namespace ExpenseClaimSystem.Infrastructure.Services
         {
             _repository = repository;
         }
+        public Task<List<ExpenseClaim>> GetFilteredAsync(ExpenseClaimFilterDto filter)
+        {
+            return _repository.GetFilteredAsync(filter);
+        }
 
         public async Task<Guid> CreateAsync(CreateExpenseClaimDto dto, string userId)
         {
