@@ -1,7 +1,5 @@
 ﻿@page "/login"
 @layout LoginLayout
-
-@rendermode InteractiveAuto
 @using ExpenseClaimSystem.Application.DTOs
 @using ExpenseClaimSystem.Application.Interfaces
 @inject IAuthService AuthService
@@ -18,7 +16,7 @@
 				<div class="input-group-prepend">
 					<span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>
 				</div>
-				<InputText @bind-Value="loginModel.Email" class="form-control form-control-lg" />
+				<InputText @bind-Value="loginModel.Email" class="form-control form-control-lg" placeholder="User Name" />
 			</div>
 			<div class="input-group mb-3">
 				<div class="input-group-prepend">
@@ -65,14 +63,14 @@
 
 	async Task HandleLogin()
 	{
-		Nav.NavigateTo("/dashboard");
+		// Nav.NavigateTo("/dashboard");
 
 		// *** issue with reading form element values
 
-		// Console.WriteLine($"Email: '{loginModel.Email}'");
-		// var result = await AuthService.LoginAsync(loginModel);
+		Console.WriteLine($"Email: '{loginModel.Email}'");
+		var result = await AuthService.LoginAsync(loginModel);
 
-		// if (result)
-		// 	Nav.NavigateTo("/dashboard");
+		if (result)
+			Nav.NavigateTo("/dashboard");
 	}
 }

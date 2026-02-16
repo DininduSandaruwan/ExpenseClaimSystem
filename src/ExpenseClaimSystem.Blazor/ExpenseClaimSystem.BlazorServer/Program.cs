@@ -7,6 +7,7 @@ using ExpenseClaimSystem.Infrastructure.Repositories;
 using ExpenseClaimSystem.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ExpenseClaimSystem.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,8 +33,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 builder.Services.AddScoped<IExpenseClaimRepository, ExpenseClaimRepository>();
 builder.Services.AddScoped<IExpenseClaimService, ExpenseClaimService>();
-
+builder.Services.AddInfrastructure();
 builder.Services.AddHttpClient();
+
+builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
 
@@ -45,9 +48,6 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     await DbSeeder.SeedAsync(userManager, roleManager);
 }
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -62,14 +62,16 @@ else
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+app.MapStaticAssets();
 
 app.UseAntiforgery();
 
-app.UseStaticFiles();
-app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(ExpenseClaimSystem.BlazorClient._Imports).Assembly);
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();
