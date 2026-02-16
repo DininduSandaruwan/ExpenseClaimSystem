@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ExpenseClaimSystem.Domain\ExpenseClaimSystem.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
