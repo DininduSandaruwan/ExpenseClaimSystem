@@ -1,0 +1,134 @@
+﻿
+<header class="topbar">
+    <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+        <div class="navbar-header">
+            <!-- This is for the sidebar toggle which is visible on mobile only -->
+            <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)">
+                <i class="ti-menu ti-close"></i>
+            </a>
+            <!-- ============================================================== -->
+            <!-- Logo -->
+            <!-- ============================================================== -->
+            <div class="navbar-brand">
+                <a href="<?= BASE_URL ?>/index.php" class="logo">
+                    <!-- Logo icon -->
+                    <b class="logo-icon">
+                        <!-- Desktop Logo -->
+                        <img src="<?= BASE_URL ?>/assets/images/desktop-logo-light-icon.png" alt="homepage" class="logo-desktop" />
+
+                        <!-- Mobile Logo -->
+                        <img src="<?= BASE_URL ?>/assets/images/mobile-logo-light-icon.png" alt="homepage" class="logo-mobile" />
+                    </b>
+                    <!--End Logo icon -->
+                    <!-- Logo text -->
+                    <span class="logo-text">
+                        <!-- dark Logo text -->
+                        <img src="<?= BASE_URL ?>/assets/images/logo-text.png" alt="homepage" class="dark-logo" />
+                        <!-- Light Logo text -->
+                        <img src="<?= BASE_URL ?>/assets/images/logo-light-text.png" class="light-logo" alt="homepage" />
+                    </span>
+                </a>
+                <a class="sidebartoggler d-none d-md-block" href="javascript:void(0)" data-sidebartype="mini-sidebar">
+                    <i class="mdi mdi-toggle-switch mdi-toggle-switch-off font-20"></i>
+                </a>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Logo -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Toggle which is visible on mobile only -->
+            <!-- ============================================================== -->
+            <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+               data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+               aria-expanded="false" aria-label="Toggle navigation">
+                <i class="ti-more"></i>
+            </a>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Logo -->
+        <!-- ============================================================== -->
+        <div class="navbar-collapse collapse" id="navbarSupportedContent">
+            <!-- ============================================================== -->
+            <!-- toggle and nav items -->
+            <!-- ============================================================== -->
+
+            <ul class="navbar-nav ml-auto">
+                <!-- ml-auto pushes it to the right -->
+
+            </ul>
+
+            <!-- ============================================================== -->
+            <!-- Right side toggle and nav items -->
+            <!-- ============================================================== -->
+            <ul class="navbar-nav float-right">
+                <!-- ============================================================== -->
+                <!-- Comment -->
+                <!-- ============================================================== -->
+                <li class="nav-item dropdown border-right">
+                    <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" aria-expanded="false">
+                        <!-- data-toggle="dropdown" aria-haspopup="true" -->
+                        <i class="mdi mdi-bell-outline font-22"></i>
+                        <span class="badge badge-pill badge-info noti"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mailbox animated bounceInDown">
+                        <span class="with-arrow">
+                            <span class="bg-primary"></span>
+                        </span>
+                        <ul class="list-style-none">
+                            <li>
+                                <div class="drop-title bg-primary text-white">
+                                    <h4 class="mb-0 m-t-5">4 New</h4>
+                                    <span class="font-light">Notifications</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="message-center notifications">
+                                    <!-- Message -->
+                                    <a href="javascript:void(0)" class="message-item">
+                                        <span class="btn btn-danger btn-circle">
+                                            <i class="fa fa-link"></i>
+                                        </span>
+                                        <div class="mail-contnet">
+                                            <h5 class="message-title">Luanch Admin</h5>
+                                            <span class="mail-desc">Just see the my new admin!</span>
+                                            <span class="time">9:30 AM</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="nav-link text-center m-b-5" href="javascript:void(0);">
+                                    <strong>Check all notifications</strong>
+                                    <i class="fa fa-angle-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- ============================================================== -->
+                <!-- End Comment -->
+                <!-- ============================================================== -->
+            </ul>
+            <ul class="navbar-nav float-right">
+                <?php if (isset($_SESSION['auth']) && $_SESSION['auth'] === true): ?>
+                <!-- LOGOUT BUTTON -->
+                <li class="nav-item">
+                    <a href="logout.php" class="nav-link waves-effect waves-light btn btn-danger text-white"
+                       style="margin-left: 10px; padding: 5px 15px;">
+                        Logout
+                    </a>
+                </li>
+
+                <?php else: ?>
+                <!-- LOGIN BUTTON -->
+                <li class="nav-item">
+                    <a href="login.php" class="nav-link waves-effect waves-light btn btn-info text-white"
+                       style="margin-left: 10px; padding: 5px 15px;">
+                        Login
+                    </a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </nav>
+</header>

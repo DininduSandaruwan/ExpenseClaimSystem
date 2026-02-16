@@ -1,7 +1,9 @@
 using ExpenseClaimSystem.Application.Interfaces;
+using ExpenseClaimSystem.Application.Services;
 using ExpenseClaimSystem.BlazorServer.Components;
 using ExpenseClaimSystem.Domain.Entities;
 using ExpenseClaimSystem.Infrastructure.Data;
+using ExpenseClaimSystem.Infrastructure.Repositories;
 using ExpenseClaimSystem.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +29,11 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 // Register your services here
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>(); 
+builder.Services.AddScoped<IExpenseClaimRepository, ExpenseClaimRepository>();
+builder.Services.AddScoped<IExpenseClaimService, ExpenseClaimService>();
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

@@ -114,10 +114,14 @@
 
 	async Task HandleLogin()
 	{
-		Console.WriteLine($"Email: '{loginModel.Email}'");
-		var result = await AuthService.LoginAsync(loginModel);
+		Nav.NavigateTo("/dashboard");
 
-		if (result)
-			Nav.NavigateTo("/dashboard");
+		// *** issue with reading form element values
+
+		// Console.WriteLine($"Email: '{loginModel.Email}'");
+		// var result = await AuthService.LoginAsync(loginModel);
+
+		// if (result)
+		// 	Nav.NavigateTo("/dashboard");
 	}
 }

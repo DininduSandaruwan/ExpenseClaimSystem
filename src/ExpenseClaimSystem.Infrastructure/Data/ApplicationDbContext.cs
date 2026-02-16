@@ -10,5 +10,24 @@ namespace ExpenseClaimSystem.Infrastructure.Data
             : base(options)
         {
         }
+        public DbSet<ExpenseClaim> ExpenseClaims => Set<ExpenseClaim>();
+        public DbSet<ExpenseItem> ExpenseItems => Set<ExpenseItem>();
+        public DbSet<Attachment> Attachments => Set<Attachment>();
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<ExpenseClaim>()
+                .HasMany(x => x.Items)
+                .WithOne()
+                .HasForeignKey(x => x.ExpenseClaimId);
+
+            builder.Entity<ExpenseClaim>()
+                .HasMany(x => x.Attachments)
+                .WithOne()
+                .HasForeignKey(x => x.ExpenseClaimId);
+        }
     }
 }
