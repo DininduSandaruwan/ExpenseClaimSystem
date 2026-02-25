@@ -3,139 +3,107 @@
 @using ExpenseClaimSystem.Application.DTOs
 @using ExpenseClaimSystem.Application.Services
 @using ExpenseClaimSystem.Domain.Entities
-@rendermode InteractiveAuto
+@using Microsoft.FluentUI.AspNetCore.Components
+@rendermode InteractiveServer
 @inject IExpenseClaimService ClaimService
 @inject NavigationManager Nav
 
 
-<div class="container-fluid">
-	<!-- ============================================================== -->
-	<!-- Bread crumb and right sidebar toggle -->
-	<!-- ============================================================== -->
-	<div class="page-breadcrumb">
-		<div class="row">
-			<div class="col-5 align-self-center">
-			</div>
-			<div class="col-7 align-self-center">
-				<div class="d-flex align-items-center justify-content-end">
-					<nav aria-label="breadcrumb">
-						<ol class="breadcrumb">
-							<li class="breadcrumb-item">
-								<a href="#">Claims List</a>
-							</li>
-						</ol>
-					</nav>
-				</div>
-			</div>
-		</div>
-	</div>
-	<h3 class="mb-4">Expense Claims</h3>
+<FluentStack Gap="Spacing.Large" Orientation="Orientation.Vertical">
+    <FluentText Typo="Typography.H5">Expense Claims</FluentText>
 
-	<div class="card p-3 mb-4">
-		<div class="row g-3">
+    <!-- Filters -->
+    <FluentStack Orientation="Orientation.Horizontal" Gap="Spacing.Medium" Align="Alignment.Center">
+        <FluentStack>
+            <label>Status</label>
+            <select @bind="filter.Status">
+                <option value="">All</option>
+                <option>Pending</option>
+                <option>Approved</option>
+                <option>Rejected</option>
+                <option>Deleted</option>
+            </select>
+        </FluentStack>
 
-			<div class="col-md-3">
-				<label>Status</label>
-				<select class="form-select" @bind="filter.Status">
-					<option value="">All</option>
-					<option>Pending</option>
-					<option>Approved</option>
-					<option>Rejected</option>
-					<option>Deleted</option>
-				</select>
-			</div>
+        <FluentStack>
+            <label>Department</label>
+            <select @bind="filter.Department">
+                <option value="">All</option>
+                <option>HR</option>
+                <option>Finance</option>
+                <option>IT</option>
+                <option>Operations</option>
+            </select>
+        </FluentStack>
 
-			<div class="col-md-3">
-				<label>Department</label>
-				<select class="form-select" @bind="filter.Department">
-					<option value="">All</option>
-					<option>HR</option>
-					<option>Finance</option>
-					<option>IT</option>
-					<option>Operations</option>
-				</select>
-			</div>
+        <FluentStack>
+            <label>From</label>
+            <InputDate @bind-Value="filter.FromDate" />
+        </FluentStack>
 
-			<div class="col-md-2">
-				<label>From</label>
-				<InputDate class="form-control" @bind-Value="filter.FromDate" />
-			</div>
+        <FluentStack>
+            <label>To</label>
+            <InputDate @bind-Value="filter.ToDate" />
+        </FluentStack>
 
-			<div class="col-md-2">
-				<label>To</label>
-				<InputDate class="form-control" @bind-Value="filter.ToDate" />
-			</div>
+            <div style="align-self:end">
+            <FluentButton Appearance="Appearance.Outline" @onclick="LoadClaims">Filter</FluentButton>
+        </div>
+    </FluentStack>
 
-			<div class="col-md-2 d-flex align-items-end">
-				<button class="btn btn-primary w-100" @onclick="LoadClaims">
-					Filter
-				</button>
-			</div>
+    <!-- Simple table-like list (unstyled from Bootstrap) -->
+    <table style="width:100%; border-collapse:collapse;">
+        <thead style="background:#333;color:#fff;">
+            <tr>
+                <th style="padding:8px;text-align:left">Request No</th>
+                <th style="padding:8px;text-align:left">Employee</th>
+                <th style="padding:8px;text-align:left">Department</th>
+                <th style="padding:8px;text-align:left">Created At</th>
+                <th style="padding:8px;text-align:left" width="200">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in claims)
+            {
+                <tr style="border-bottom:1px solid #e6e6e6;">
+                    <td style="padding:8px">@claim.RequestNumber</td>
+                    <td style="padding:8px">@claim.EmployeeId</td>
+                    <td style="padding:8px">@claim.Department</td>
+                    <td style="padding:8px">@claim.CreatedAt.ToString("yyyy-MM-dd")</td>
+                    <td style="padding:8px">
+                        <FluentButton Appearance="Appearance.Stealth" @onclick="() => ViewClaim(claim)" Style="margin-right:8px;">View</FluentButton>
+                        <FluentButton Appearance="Appearance.Outline" @onclick="() => EditClaim(claim.Id)">Edit</FluentButton>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-		</div>
-	</div>
+    <!-- Modal-like details (kept simple) -->
+    @if (selectedClaim != null)
+    {
+        <div style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
+            <div style="background:#fff; padding:20px; width:600px; border-radius:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <FluentText Typo="Typography.H6">Claim Details</FluentText>
+                    <FluentButton Appearance="Appearance.Stealth" @onclick="CloseModal">✕</FluentButton>
+                </div>
+                <div>
+                    <p><strong>Request No:</strong> @selectedClaim.RequestNumber</p>
+                    <p><strong>Employee:</strong> @selectedClaim.EmployeeId</p>
+                    <p><strong>Department:</strong> @selectedClaim.Department</p>
+                    <p><strong>Created At:</strong> @selectedClaim.CreatedAt</p>
+                    <p><strong>Status:</strong> @selectedClaim.Status</p>
+                    <p><strong>Total:</strong> @selectedClaim.TotalAmount</p>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+                    <FluentButton Appearance="Appearance.Stealth" @onclick="CloseModal">Close</FluentButton>
+                </div>
+            </div>
+        </div>
+    }
 
-	<table class="table table-striped table-bordered">
-		<thead class="table-dark">
-			<tr>
-				<th>Request No</th>
-				<th>Employee</th>
-				<th>Department</th>
-				<th>Created At</th>
-				<th width="200">Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var claim in claims)
-			{
-				<tr>
-					<td>@claim.RequestNumber</td>
-					<td>@claim.EmployeeId</td>
-					<td>@claim.Department</td>
-					<td>@claim.CreatedAt.ToString("yyyy-MM-dd")</td>
-					<td>
-						<button class="btn btn-sm btn-info me-1"
-								@onclick="() => ViewClaim(claim)">
-							View
-						</button>
-
-						<button class="btn btn-sm btn-warning me-1"
-								@onclick="() => EditClaim(claim.Id)">
-							Edit
-						</button>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-
-	<!-- Bootstrap Modal -->
-	@if (selectedClaim != null)
-	{
-		<div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Claim Details</h5>
-						<button class="btn-close" @onclick="CloseModal"></button>
-					</div>
-					<div class="modal-body">
-						<p><strong>Request No:</strong> @selectedClaim.RequestNumber</p>
-						<p><strong>Employee:</strong> @selectedClaim.EmployeeId</p>
-						<p><strong>Department:</strong> @selectedClaim.Department</p>
-						<p><strong>Created At:</strong> @selectedClaim.CreatedAt</p>
-						<p><strong>Status:</strong> @selectedClaim.Status</p>
-						<p><strong>Total:</strong> @selectedClaim.TotalAmount</p>
-					</div>
-					<div class="modal-footer">
-						<button class="btn btn-secondary" @onclick="CloseModal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	}
-
-</div>
+</FluentStack>
 @code {
 	private List<ExpenseClaim> claims = new();
 	private ExpenseClaim? selectedClaim;

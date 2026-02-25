@@ -1,78 +1,40 @@
 ﻿@page "/dashboard"
 @layout MainLayout
+@using Microsoft.FluentUI.AspNetCore.Components
 
-<div class="page-breadcrumb">
-	<div class="row">
-		<div class="col-5 align-self-center">
-		</div>
-		<div class="col-7 align-self-center">
-			<div class="d-flex align-items-center justify-content-end">
-				<nav aria-label="breadcrumb">
-					<ol class="breadcrumb">
-						<li class="breadcrumb-item">
-							<a href="#">Home Page</a>
-						</li>
-					</ol>
-				</nav>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- ============================================================== -->
-<!-- End Bread crumb and right sidebar toggle -->
-<!-- ============================================================== -->
-<!-- ============================================================== -->
-<!-- Container fluid  -->
-<!-- ============================================================== -->
+<FluentText Typo="Typography.H3">
+    Dashboard
+</FluentText>
 
+<FluentStack Orientation="Orientation.Horizontal"
+             HorizontalGap="20"
+             Style="margin-top:25px;">
 
-<div class="container-fluid">
+    <FluentCard Style="width:250px; padding:20px;">
+        <FluentText Typo="Typography.H5">
+            Total Claims
+        </FluentText>
+        <FluentText Typo="Typography.H2">
+            25
+        </FluentText>
+    </FluentCard>
 
-	<div class="row">
-		<div class="col-md-12" style="color: #000 !important; font-size:18px;">
-			<div class="card p-5" style="background:white; border-radius:12px;">
-				<div class="row m-t-40">
-					<div class="col-md-6 col-lg-4 col-xlg-4">
-						<div class="card card-hover">
-							<div class="box bg-info text-center">
-								<img src="<?= BASE_URL ?>/assets/images/total.png" alt=""
-									 style="width:50px;">
-								<h1 class="font-light text-white">0</h1>
-								<h6 class="text-white">Total Claims</h6>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-lg-4 col-xlg-4">
-						<div class="card card-hover">
-							<div class="box bg-primary text-center">
-								<img src="<?= BASE_URL ?>/assets/images/ongoing.png" alt=""
-									 style="width:50px;">
-								<h1 class="font-light text-white">0</h1>
-								<h6 class="text-white">Pending Claims</h6>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-lg-4 col-xlg-4">
-						<div class="card card-hover">
-							<div class="box bg-success text-center">
-								<img src="<?= BASE_URL ?>/assets/images/completed.png" alt=""
-									 style="width:50px;">
-								<h1 class="font-light text-white">0</h1>
-								<h6 class="text-white">Reviewed Claims</h6>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <FluentCard Style="width:250px; padding:20px;">
+        <FluentText Typo="Typography.H5">
+            Pending Approvals
+        </FluentText>
+        <FluentText Typo="Typography.H2">
+            5
+        </FluentText>
+    </FluentCard>
 
-	<div class="row">
-		<div class="col-md-12" style="color: #000 !important; font-size:18px;">
-			<div class="card p-5" style="background:white; border-radius:12px;">
-			</div>
-		</div>
-	</div>
+    <FluentCard Style="width:250px; padding:20px;">
+        <FluentText Typo="Typography.H5">
+            Approved This Month
+        </FluentText>
+        <FluentText Typo="Typography.H2">
+            12
+        </FluentText>
+    </FluentCard>
 
-
-</div>
+</FluentStack>

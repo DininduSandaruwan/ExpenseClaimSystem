@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExpenseClaimSystem.Infrastructure;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddFluentUIComponents();
 
 // Register HttpClient for Blazor components (Blazor Server host provides a client instance)
 // Default to the development HTTPS launch URL so API calls from the client hit the local server port
@@ -69,11 +72,13 @@ builder.Services.AddInfrastructure();
 var app = builder.Build();
 
 // Seed data
-using (var scope = app.Services.CreateScope()) { 
-    var services = scope.ServiceProvider; 
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>(); 
-    await DbSeeder.SeedAsync(userManager, roleManager); }
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    await DbSeeder.SeedAsync(userManager, roleManager);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

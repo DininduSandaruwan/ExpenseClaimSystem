@@ -2,6 +2,7 @@
 
 namespace ExpenseClaimSystem.BlazorServer.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     public class AttachmentsController : ControllerBase

@@ -91,123 +91,6 @@ namespace ExpenseClaimSystem.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ExpenseClaimSystem.Domain.Entities.AttachmentDetails", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AttachmentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ExpenseClaimId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ExpenseClaimId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExpenseClaimId");
-
-                    b.HasIndex("ExpenseClaimId1");
-
-                    b.ToTable("Attachments");
-                });
-
-            modelBuilder.Entity("ExpenseClaimSystem.Domain.Entities.ExpenseClaim", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AccountName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AccountNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BankNameCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Department")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmployeeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("GstAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RequestNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("SubTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExpenseClaims");
-                });
-
-            modelBuilder.Entity("ExpenseClaimSystem.Domain.Entities.ExpenseItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ExpenseClaimId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsGstApplicable")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExpenseClaimId");
-
-                    b.ToTable("ExpenseItems");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -341,32 +224,6 @@ namespace ExpenseClaimSystem.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ExpenseClaimSystem.Domain.Entities.AttachmentDetails", b =>
-                {
-                    b.HasOne("ExpenseClaimSystem.Domain.Entities.ExpenseClaim", null)
-                        .WithMany("Attachments")
-                        .HasForeignKey("ExpenseClaimId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("ExpenseClaimSystem.Domain.Entities.ExpenseClaim", "ExpenseClaim")
-                        .WithMany()
-                        .HasForeignKey("ExpenseClaimId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExpenseClaim");
-                });
-
-            modelBuilder.Entity("ExpenseClaimSystem.Domain.Entities.ExpenseItem", b =>
-                {
-                    b.HasOne("ExpenseClaimSystem.Domain.Entities.ExpenseClaim", null)
-                        .WithMany("Items")
-                        .HasForeignKey("ExpenseClaimId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -416,13 +273,6 @@ namespace ExpenseClaimSystem.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ExpenseClaimSystem.Domain.Entities.ExpenseClaim", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

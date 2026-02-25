@@ -1,4 +1,9 @@
-﻿using ExpenseClaimSystem.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Mail;
+using System.Reflection.Emit;
+using System.Text;
+using ExpenseClaimSystem.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,14 +27,12 @@ namespace ExpenseClaimSystem.Infrastructure.Data
             builder.Entity<ExpenseClaim>()
                 .HasMany(x => x.Items)
                 .WithOne()
-                .HasForeignKey(x => x.ExpenseClaimId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(x => x.ExpenseClaimId);
 
             builder.Entity<ExpenseClaim>()
                 .HasMany(x => x.Attachments)
                 .WithOne()
-                .HasForeignKey(x => x.ExpenseClaimId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(x => x.ExpenseClaimId);
         }
     }
 }

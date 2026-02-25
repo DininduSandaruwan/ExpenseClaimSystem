@@ -3,130 +3,119 @@
 @using ExpenseClaimSystem.Application.DTOs
 @using ExpenseClaimSystem.Application.Services
 @using ExpenseClaimSystem.Domain.Enums
+@using Microsoft.FluentUI.AspNetCore.Components
 @inject IExpenseClaimService ClaimService
 @inject HttpClient Http
 @rendermode InteractiveAuto
 
-<div class="container-fluid">
-	<div class="page-breadcrumb">
-		<div class="row">
-			<div class="col-5 align-self-center">
-			</div>
-			<div class="col-7 align-self-center">
-				<div class="d-flex align-items-center justify-content-end">
-					<nav aria-label="breadcrumb">
-						<ol class="breadcrumb">
-							<li class="breadcrumb-item">
-								<a href="#">Create Expense Claim</a>
-							</li>
-						</ol>
-					</nav>
-				</div>
-			</div>
-		</div>
-	</div>
-	<h3>Create Expense Claim</h3>
+<FluentStack Gap="Spacing.Medium">
+    <FluentText Typo="Typography.H5">Create Expense Claim</FluentText>
 
-	<EditForm Model="model" OnValidSubmit="HandleSubmit" FormName="CreateExpenseClaimForm">
-		<DataAnnotationsValidator />
+    <EditForm Model="model" OnValidSubmit="HandleSubmit" FormName="CreateExpenseClaimForm">
+        <DataAnnotationsValidator />
 
-		<div>
-			<label>Department</label>
-			<InputText @bind-Value="model.Department" />
-		</div>
+        <FluentStack Gap="Spacing.Small">
+            <label>Department</label>
+            <InputText @bind-Value="model.Department" />
+        </FluentStack>
 
+        <FluentText Typo="Typography.H6">Expense Details</FluentText>
+        <FluentStack Orientation="Orientation.Horizontal" Gap="Spacing.Medium" Align="Alignment.Center">
+            <!-- Currency -->
+            <FluentStack>
+                <label>Currency</label>
+                <select @bind="SelectedCurrency">
+                    <option value="">Select Currency</option>
+                    @foreach (var currency in Currencies)
+                    {
+                        <option value="@currency.Id">@currency.Name</option>
+                    }
+                </select>
+            </FluentStack>
 
-		<div>
-			<h5>Expense Detils</h5>
-			<hr />
-			@* Dropdown - Currency *@
-			<select class="form-select" @bind="SelectedCurrency">
-				<option value="">Select Currency</option>
-				@foreach (var currency in Currencies)
-				{
-					<option value="@currency.Id">@currency.Name</option>
-				}
-			</select>
+            <!-- Category for new item -->
+            <FluentStack>
+                <label>Category</label>
+                <select @bind="currentItem.Category">
+                    <option value="">Select Expense Category</option>
+                    @foreach (var category in ExpCategories)
+                    {
+                        <option value="@category.Name">@category.Name</option>
+                    }
+                </select>
+            </FluentStack>
 
-			@* Dropdown - Expense Category for new item *@
-			<select class="form-select" @bind="currentItem.Category">
-				<option value="">Select Expense Category</option>
-				@foreach (var category in ExpCategories)
-				{
-					<option value="@category.Name">@category.Name</option>
-				}
-			</select>
+            <FluentStack>
+                <label>Description</label>
+                <InputText @bind-Value="currentItem.Description" />
+            </FluentStack>
 
-			<label>Description</label>
-			<InputText @bind-Value="currentItem.Description" />
+            <FluentStack>
+                <label>Amount</label>
+                <InputNumber @bind-Value="currentItem.Amount" />
+            </FluentStack>
 
-			<label>Amount</label>
-			<InputNumber @bind-Value="currentItem.Amount" />
+            <div style="align-self:end">
+                <FluentButton Appearance="Appearance.Outline" @onclick="AddItem">Add Item</FluentButton>
+            </div>
+        </FluentStack>
 
-			<button type="button" @onclick="AddItem">Add Item</button>
+        @if (model.Items != null && model.Items.Count > 0)
+        {
+            <FluentStack Gap="Spacing.Small">
+                @foreach (var item in model.Items)
+                {
+                    <div style="display:flex; gap:12px; align-items:center; padding:8px; border-bottom:1px solid #eee;">
+                        <select @bind="item.Category">
+                            <option value="">Select Category</option>
+                            @foreach (var category in ExpCategories)
+                            {
+                                <option value="@category.Name">@category.Name</option>
+                            }
+                        </select>
 
+                        <InputText placeholder="Description" @bind-Value="item.Description" />
+                        <InputNumber @bind-Value="item.Amount" />
+                        <InputCheckbox @bind-Value="item.IsGstApplicable" />
 
-			@foreach (var item in model.Items)
-			{
-				<div class="expense-row">
-					<select class="form-select" @bind="item.Category">
-						<option value="">Select Category</option>
-						@foreach (var category in ExpCategories)
-						{
-							<option value="@category.Name">@category.Name</option>
-						}
-					</select>
+                        <FluentButton Appearance="Appearance.Stealth" @onclick="() => RemoveItem(item)">Remove</FluentButton>
+                    </div>
+                }
+            </FluentStack>
+        }
 
-					<InputText placeholder="Description" @bind-Value="item.Description" />
-					<InputNumber @bind-Value="item.Amount" />
-					<InputCheckbox @bind-Value="item.IsGstApplicable" />
+        <FluentText Typo="Typography.H6">Attachments</FluentText>
+        <select>
+            <option value="">Select Attachment Type</option>
+            @foreach (var attachement in AttachementTypes)
+            {
+                <option value="@attachement.Id">@attachement.Name</option>
+            }
+        </select>
 
-					<button type="button" @onclick="() => RemoveItem(item)">
-						Remove
-					</button>
-				</div>
-			}
-			<hr />
+        <InputFile OnChange="HandleFileUpload" />
 
-		</div>
+        <FluentText Typo="Typography.H6">Payment Method Details</FluentText>
+        <InputRadioGroup @bind-Value="model.PaymentMethod">
+            <label><InputRadio Value="PaymentMethod.Cash" /> Cash</label>
+            <label><InputRadio Value="PaymentMethod.Card" /> Card</label>
+        </InputRadioGroup>
 
-		<div>
-			<h5>Attchements</h5>
-			<hr />
-			@* Dropdown - Attachement Types*@
-			<select class="form-select">
-				<option value="">Select Attachement Type</option>
-				@foreach (var attachement in AttachementTypes)
-				{
-					<option value="@attachement.Id">@attachement.Name</option>
-				}
-			</select>
-		</div>
-		<InputFile OnChange="HandleFileUpload" />
+        @if (model.PaymentMethod == PaymentMethod.Card)
+        {
+            <FluentStack Gap="Spacing.Small">
+                <InputText placeholder="Bank Code" @bind-Value="model.BankNameCode" />
+                <InputText placeholder="Account Name" @bind-Value="model.AccountName" />
+                <InputText placeholder="Account Number" @bind-Value="model.AccountNumber" />
+            </FluentStack>
+        }
 
-		<div>
+        <div style="margin-top:12px;">
+            <button type="submit">Submit</button>
+        </div>
 
-			<h5>Payment Method Details</h5>
-			<hr />
-			<InputRadioGroup @bind-Value="model.PaymentMethod">
-				<InputRadio Value="PaymentMethod.Cash" /> Cash
-				<InputRadio Value="PaymentMethod.Card" /> Card
-			</InputRadioGroup>
-		</div>
-
-		@if (model.PaymentMethod == PaymentMethod.Card)
-		{
-			<div>
-				<InputText placeholder="Bank Code" @bind-Value="model.BankNameCode" />
-				<InputText placeholder="Account Name" @bind-Value="model.AccountName" />
-				<InputText placeholder="Account Number" @bind-Value="model.AccountNumber" />
-			</div>
-		}
-
-		<button type="submit">Submit</button>
-	</EditForm>
-
-</div>
+    </EditForm>
+</FluentStack>
 
 @code {
 
@@ -191,30 +180,32 @@
 		public string FilePath { get; set; }
 	}
 
-	CreateExpenseClaimDto model = new();
+    CreateExpenseClaimDto model = new();
 
-	void AddItem()
-	{
-		if (model.Items == null)
-		{
-			model.Items = new List<ExpenseItemDto>();
-		}
+    async Task AddItem()
+    {
+        if (model.Items == null)
+        {
+            model.Items = new List<ExpenseItemDto>();
+        }
 
-		model.Items.Add(new ExpenseItemDto
-		{
-			Category = currentItem.Category,
-			Description = currentItem.Description,
-			Amount = currentItem.Amount,
-			IsGstApplicable = currentItem.IsGstApplicable
-		});
+        model.Items.Add(new ExpenseItemDto
+        {
+            Category = currentItem.Category,
+            Description = currentItem.Description,
+            Amount = currentItem.Amount,
+            IsGstApplicable = currentItem.IsGstApplicable
+        });
 
-		currentItem = new ExpenseItemDto();
-	}
+        currentItem = new ExpenseItemDto();
+        await Task.CompletedTask;
+    }
 
-	void RemoveItem(ExpenseItemDto item)
-	{
-		model.Items.Remove(item);
-	}
+    async Task RemoveItem(ExpenseItemDto item)
+    {
+        model.Items.Remove(item);
+        await Task.CompletedTask;
+    }
 
 	async Task HandleSubmit()
 	{
