@@ -1,5 +1,4 @@
 ﻿@page "/register"
-@layout LoginLayout
 @using ExpenseClaimSystem.Application.DTOs
 @using ExpenseClaimSystem.Application.Interfaces
 @using System.Text.Json
@@ -9,69 +8,50 @@
 @inject HttpClient Http
 @rendermode InteractiveAuto
 
-<!-- Form -->
-<div class="row">
-	<div class="col-12">
-		<EditForm Model="model" OnValidSubmit="HandleRegister" FormName="FrmReg">
-			<div class="input-group mb-3">
-				<div class="input-group-prepend">
-					<span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>
-				</div>
-				<InputText @bind="model.FullName" @bind-Value="model.FullName" placeholder="Full Name" class="form-control form-control-lg" />
-			</div>
-			<div class="input-group mb-3">
-				<div class="input-group-prepend">
-					<span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>
-				</div>
-				<InputText @bind="model.Email" @bind-Value="model.Email" placeholder="Email" class="form-control form-control-lg" />
-			</div>
-			<div class="input-group mb-3">
-				<div class="input-group-prepend">
-					<span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>
-				</div>
-				<InputText @bind="model.Password" @bind-Value="model.Password" type="password" class="form-control form-control-lg" />
-			</div>
-			<div class="form-group text-center">
-				<div class="col-xs-12 p-b-20">
-					<button type="submit" class="btn btn-block btn-lg btn-info">Register</button>
-				</div>
-			</div>
-		</EditForm>
-	</div>
-</div>
+<h3>Register</h3>
+
+<EditForm Model="model" OnValidSubmit="HandleRegister" FormName="FrmReg">
+    <InputText @bind="model.FullName"  @bind-Value="model.FullName" placeholder="Full Name" />
+    <br />
+    <InputText @bind="model.Email" @bind-Value="model.Email" placeholder="Email" />
+    <br />
+    <InputText @bind="model.Password" @bind-Value="model.Password" type="password" />
+    <br />
+    <button type="submit">Register</button>
+</EditForm>
 
 @code {
-	private RegisterRequest model = new();
+    private RegisterRequest model = new();
 
-	private async Task HandleRegister()
-	{
-		var result = await Http.PostAsJsonAsync("api/Auth/register", model);
+    private async Task HandleRegister()
+    {
+        var result = await Http.PostAsJsonAsync("api/Auth/register", model);
 
-		Console.WriteLine($"response : '{result.IsSuccessStatusCode}'");
+        Console.WriteLine($"response : '{result.IsSuccessStatusCode}'");
 
-		if (result.IsSuccessStatusCode)
-		{
-			Nav.NavigateTo("/login", true);
-			return;
-		}
+        if (result.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
 
-		// Try to read problem details / error response to show reasons for failure
-		try
-		{
-			var content = await result.Content.ReadFromJsonAsync<JsonElement?>();
-			if (content.HasValue)
-			{
-				Console.WriteLine($"Registration failed response: {content.Value}");
-			}
-			else
-			{
-				var text = await result.Content.ReadAsStringAsync();
-				Console.WriteLine($"Registration failed response text: {text}");
-			}
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"Failed to parse error response: {ex.Message}");
-		}
-	}
+        // Try to read problem details / error response to show reasons for failure
+        try
+        {
+            var content = await result.Content.ReadFromJsonAsync<JsonElement?>();
+            if (content.HasValue)
+            {
+                Console.WriteLine($"Registration failed response: {content.Value}");
+            }
+            else
+            {
+                var text = await result.Content.ReadAsStringAsync();
+                Console.WriteLine($"Registration failed response text: {text}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to parse error response: {ex.Message}");
+        }
+    }
 }

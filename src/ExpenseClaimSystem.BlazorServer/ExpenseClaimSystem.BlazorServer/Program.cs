@@ -1,12 +1,15 @@
-using ExpenseClaimSystem.BlazorServer.Components;
 using System.Net.Http;
+using ExpenseClaimSystem.Application.Interfaces;
+using ExpenseClaimSystem.Application.Services;
+using ExpenseClaimSystem.BlazorServer.Components;
 using ExpenseClaimSystem.Domain.Entities;
 using ExpenseClaimSystem.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using ExpenseClaimSystem.Application.Interfaces;
+using ExpenseClaimSystem.Infrastructure.Repositories;
 using ExpenseClaimSystem.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ExpenseClaimSystem.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,9 +52,6 @@ builder.Services.AddScoped(sp =>
 // Add API controllers for server-side API endpoints
 builder.Services.AddControllers();
 
-// Register application services
-builder.Services.AddScoped<IAuthService, AuthService>();
-
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -63,7 +63,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Register application services AFTER DbContext and Identity so repository dependencies are available
+builder.Services.AddInfrastructure();
+
 var app = builder.Build();
+
+// Seed data
+using (var scope = app.Services.CreateScope()) { 
+    var services = scope.ServiceProvider; 
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); 
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>(); 
+    await DbSeeder.SeedAsync(userManager, roleManager); }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

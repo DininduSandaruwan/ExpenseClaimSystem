@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\ExpenseClaimSystem.Application\ExpenseClaimSystem.Application.csproj" />
+    <ProjectReference Include="..\..\ExpenseClaimSystem.Infrastructure\ExpenseClaimSystem.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
