@@ -1,6 +1,10 @@
-using ExpenseClaimSystem.Application.Interfaces;
+using System;
+using System.Net.Http;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+// Register HttpClient for server API calls
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 await builder.Build().RunAsync();

@@ -1,9 +1,11 @@
 ﻿@page "/login"
 @layout LoginLayout
 @using ExpenseClaimSystem.Application.DTOs
+@using System.Net.Http.Json
 @using ExpenseClaimSystem.Application.Interfaces
-@inject IAuthService AuthService
+@inject HttpClient Http
 @inject NavigationManager Nav
+@rendermode InteractiveAuto
 
 <!-- Form -->
 <div class="row">
@@ -16,7 +18,7 @@
 				<div class="input-group-prepend">
 					<span class="input-group-text" id="basic-addon1"><i class="ti-user"></i></span>
 				</div>
-				<InputText @bind-Value="loginModel.Email" class="form-control form-control-lg" placeholder="User Name" />
+			<input @bind="loginModel.Email" @bind:event="oninput" class="form-control form-control-lg" placeholder="User Name" />
 			</div>
 			<div class="input-group mb-3">
 				<div class="input-group-prepend">
@@ -24,7 +26,7 @@
 						<i class="ti-pencil"></i>
 					</span>
 				</div>
-				<InputText type="password" @bind-Value="loginModel.Password" class="form-control form-control-lg" placeholder="Password" />
+			<input type="password" @bind="loginModel.Password" @bind:event="oninput" class="form-control form-control-lg" placeholder="Password" />
 			</div>
 			<div class="form-group row">
 				<div class="col-md-12">
@@ -67,10 +69,11 @@
 
 		// *** issue with reading form element values
 
-		Console.WriteLine($"Email: '{loginModel.Email}'");
-		var result = await AuthService.LoginAsync(loginModel);
-
-		if (result)
-			Nav.NavigateTo("/dashboard");
+    Console.WriteLine($"Email: '{loginModel.Email}'");
+    var resp = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+    if (resp.IsSuccessStatusCode)
+    {
+        Nav.NavigateTo("/dashboard");
+    }
 	}
 }
