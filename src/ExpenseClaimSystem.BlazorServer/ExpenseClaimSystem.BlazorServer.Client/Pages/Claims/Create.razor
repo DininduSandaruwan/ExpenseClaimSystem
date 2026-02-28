@@ -1,0 +1,389 @@
+﻿@page "/claims/create"
+@layout MainLayout
+@using ExpenseClaimSystem.Application.DTOs
+@using ExpenseClaimSystem.Application.Services
+@using ExpenseClaimSystem.Domain.Enums
+@using Microsoft.FluentUI.AspNetCore.Components
+@using System.Linq
+@inject IExpenseClaimService ClaimService
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@rendermode InteractiveAuto
+
+<div style="max-width:1100px; margin:18px auto;">
+    <!-- Header summary -->
+    <div style="display:flex; gap:12px; background:#f8fbfb; border-radius:8px; padding:12px 16px; align-items:center; justify-content:space-between; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+        <div style="flex:1; display:flex; gap:12px;">
+            <div style="min-width:160px;">
+                <div style="font-size:12px; color:#666">Request Number</div>
+                <div style="font-weight:600">Pending</div>
+            </div>
+
+            <div style="min-width:140px;">
+                <div style="font-size:12px; color:#666">Department</div>
+                <div style="font-weight:600">@(!string.IsNullOrWhiteSpace(model.Department) ? model.Department : "-")</div>
+            </div>
+
+            <div style="min-width:120px;">
+                <div style="font-size:12px; color:#666">Staff ID</div>
+                <div style="font-weight:600">@StaffIdDisplay</div>
+            </div>
+
+            <div style="min-width:220px;">
+                <div style="font-size:12px; color:#666">Staff Name</div>
+                <div style="font-weight:600">@StaffNameDisplay</div>
+            </div>
+        </div>
+
+        <div style="min-width:120px; text-align:right;">
+            <div style="font-size:12px; color:#666">Date</div>
+            <div style="font-weight:600">@CurrentDate</div>
+        </div>
+    </div>
+
+    <!-- Expense Details section -->
+    <div style="margin-top:14px; background:#fff; border-radius:8px; padding:16px; border:1px solid #eef4f4; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+        <div style="border-bottom:1px solid #f0e9e9; padding-bottom:8px; margin-bottom:12px;">
+            <span style="color:#c81d3f; font-weight:600;">Expense Details</span>
+        </div>
+
+        <EditForm Model="model" OnValidSubmit="HandleSubmit" FormName="CreateExpenseClaimForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:end;">
+                <div style="flex:0 0 200px;">
+                    <label class="field-label">Currency <span style="color:#c81d3f">*</span></label>
+                    <select @bind="SelectedCurrency" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ddd;">
+                        <option value="">Select Currency</option>
+                        @foreach (var currency in Currencies)
+                        {
+                            <option value="@currency.Id">@currency.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div style="flex:1; min-width:260px;">
+                    <label class="field-label">Expense Category <span style="color:#c81d3f">*</span></label>
+                    <select @bind="currentItem.Category" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ddd;">
+                        <option value="">Select Expense Category</option>
+                        @foreach (var category in ExpCategories)
+                        {
+                            <option value="@category.Name">@category.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div style="flex:2; min-width:320px;">
+                    <label class="field-label">Description <span style="color:#c81d3f">*</span></label>
+                    <InputText @bind-Value="currentItem.Description" Placeholder="Enter description" Style="width:100%; padding:8px; border-radius:4px;" />
+                </div>
+
+                <div style="flex:0 0 160px; display:flex; gap:8px; align-items:center;">
+                    <div style="flex:1;">
+                        <label class="field-label">Amount <span style="color:#c81d3f">*</span></label>
+                        <InputNumber @bind-Value="currentItem.Amount" Style="width:100%; padding:8px; border-radius:4px;" />
+                    </div>
+                    <div>
+                        <button type="button" title="Add item" @onclick="AddItem" style="background:#c81d3f; color:#fff; border:none; width:40px; height:40px; border-radius:6px;">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items table -->
+            <div style="margin-top:14px; border:1px solid #eee; border-radius:4px; overflow:hidden;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead style="background:#fafafa; color:#333; font-size:13px;">
+                        <tr>
+                            <th style="text-align:left; padding:10px 12px; border-bottom:1px solid #eee;">Expense Category</th>
+                            <th style="text-align:left; padding:10px 12px; border-bottom:1px solid #eee;">Description</th>
+                            <th style="text-align:right; padding:10px 12px; border-bottom:1px solid #eee;">Amount</th>
+                            <th style="text-align:center; padding:10px 12px; border-bottom:1px solid #eee;">GST</th>
+                            <th style="text-align:center; padding:10px 12px; border-bottom:1px solid #eee;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (model.Items != null && model.Items.Count > 0)
+                        {
+                            foreach (var item in model.Items)
+                            {
+                                <tr>
+                                    <td style="padding:8px 12px; border-bottom:1px solid #f5f5f5;">@item.Category</td>
+                                    <td style="padding:8px 12px; border-bottom:1px solid #f5f5f5;">@item.Description</td>
+                                    <td style="padding:8px 12px; text-align:right; border-bottom:1px solid #f5f5f5;">@item.Amount.ToString("F2")</td>
+                                    <td style="padding:8px 12px; text-align:center; border-bottom:1px solid #f5f5f5;">@((item.IsGstApplicable) ? "✓" : "")</td>
+                                    <td style="padding:8px 12px; text-align:center; border-bottom:1px solid #f5f5f5;">
+                                        <button type="button" @onclick="() => RemoveItem(item)" style="background:transparent;border:none;color:#c81d3f;">🗑️</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" style="padding:12px; text-align:center; color:#888;">No items added</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td style="padding:8px 12px; text-align:right;">Sub Total (@(SelectedCurrency ?? ""))</td>
+                            <td style="padding:8px 12px; text-align:right;">@TotalAmount.ToString("F2")</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td style="padding:8px 12px; text-align:right;">GST</td>
+                            <td style="padding:8px 12px; text-align:right;">
+                                <select @bind="GstPercent" style="padding:4px;">
+                                    <option value="0.00">0%</option>
+                                    <option value="0.05">5%</option>
+                                    <option value="0.08">8%</option>
+                                    <option value="0.12">12%</option>
+                                </select>
+                            </td>
+                            <td style="padding:8px 12px; text-align:right;">@GstAmount.ToString("F2")</td>
+                        </tr>
+                        <tr style="font-weight:600;">
+                            <td colspan="2"></td>
+                            <td style="padding:8px 12px; text-align:right;">Total (@(SelectedCurrency ?? ""))</td>
+                            <td style="padding:8px 12px; text-align:right;">@GrandTotal.ToString("F2")</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        
+            <!-- Attachments -->
+            <div style="margin-top:18px; background:#fff; border-radius:6px; padding:12px; border:1px solid #eef4f4;">
+                <div style="color:#c81d3f; font-weight:600; margin-bottom:8px;">Attachments</div>
+
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <select style="padding:8px; min-width:220px; border-radius:4px; border:1px solid #ddd;">
+                        <option value="">Select Attachment Type</option>
+                        @foreach (var attachement in AttachementTypes)
+                        {
+                            <option value="@attachement.Id">@attachement.Name</option>
+                        }
+                    </select>
+
+                    <InputFile OnChange="HandleFileUpload" />
+                    <button type="button" @onclick="() => { /* add file logic already handled in upload */ }" style="background:#c81d3f;color:#fff;border:none;padding:8px 10px;border-radius:6px;">+</button>
+
+                    @if (uploadedFiles?.Count > 0)
+                    {
+                        <div style="margin-left:8px;">
+                            <ul style="margin:0; padding-left:18px;">
+                                @foreach (var f in uploadedFiles)
+                                {
+                                    <li>@f.Name</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div style="margin-top:18px; background:#fff; border-radius:6px; padding:12px; border:1px solid #eef4f4;">
+                <div style="color:#c81d3f; font-weight:600; margin-bottom:8px;">Payment Method Details</div>
+
+                <div style="display:flex; gap:16px; align-items:center; margin-bottom:12px;">
+                    <InputRadioGroup @bind-Value="model.PaymentMethod">
+                        <label style="display:flex; align-items:center; gap:6px;"><InputRadio Value="PaymentMethod.Cash" /> Cash</label>
+                        <label style="display:flex; align-items:center; gap:6px;"><InputRadio Value="PaymentMethod.Card" /> Card</label>
+                    </InputRadioGroup>
+                </div>
+
+                @if (model.PaymentMethod == PaymentMethod.Card)
+                {
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div style="min-width:220px;">
+                            <label class="field-label">Bank Name Code <span style="color:#c81d3f">*</span></label>
+                            <select style="width:100%; padding:8px; border-radius:4px; border:1px solid #ddd;">
+                                <option value="">Select Bank</option>
+                                <option>Bank A</option>
+                                <option>Bank B</option>
+                            </select>
+                        </div>
+
+                        <div style="flex:1; min-width:220px;">
+                            <label class="field-label">Account Name <span style="color:#c81d3f">*</span></label>
+                            <InputText @bind-Value="model.AccountName" Style="width:100%; padding:8px; border-radius:4px;" />
+                        </div>
+
+                        <div style="flex:1; min-width:220px;">
+                            <label class="field-label">Account Number <span style="color:#c81d3f">*</span></label>
+                            <InputText @bind-Value="model.AccountNumber" Style="width:100%; padding:8px; border-radius:4px;" />
+                        </div>
+                    </div>
+                }
+
+                <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:14px;">
+                    <button type="button" @onclick="ResetForm" style="background:#f3f3f3; border-radius:20px; padding:10px 18px; border:1px solid #e0e0e0;">Cancel</button>
+                    <button type="submit" style="background:#c81d3f; color:#fff; border-radius:24px; padding:10px 22px; border:none;">Submit</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+
+	private List<IBrowserFile> uploadedFiles = new();
+
+	private ExpenseItemDto currentItem = new();
+	private string SelectedCurrency { get; set; }
+
+	private async Task HandleFileUpload(InputFileChangeEventArgs e)
+	{
+		// Handle each selected file and send as multipart/form-data to the server
+		const long maxFileSize = 10_000_000;
+		foreach (var file in e.GetMultipleFiles())
+		{
+			try
+			{
+				using var content = new MultipartFormDataContent();
+				using var ms = new System.IO.MemoryStream();
+				await file.OpenReadStream(maxFileSize).CopyToAsync(ms);
+				var bytes = ms.ToArray();
+				using var fileContent = new ByteArrayContent(bytes);
+
+				// Set the content type if available
+				var contentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+				fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+
+				// Some servers require explicit ContentDisposition header values with quoted names
+				fileContent.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+				{
+					Name = "\"file\"",
+					FileName = "\"" + file.Name + "\""
+				};
+
+				// The name "file" should match what the server expects; adjust if needed (e.g., "files")
+				content.Add(fileContent, "file", file.Name);
+
+				var response = await Http.PostAsync("api/attachments", content);
+				var responseBody = await response.Content.ReadAsStringAsync();
+
+				if (response.IsSuccessStatusCode)
+				{
+					var result = await response.Content.ReadFromJsonAsync<UploadResult>();
+					// TODO: store result.FilePath or result.FileName on your model as needed
+					uploadedFiles.Add(file);
+				}
+				else
+				{
+					// Log status and server response body to help diagnose BadRequest
+					Console.Error.WriteLine($"File upload failed for {file.Name}: {response.StatusCode} - {responseBody}");
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine($"Error uploading file {file.Name}: {ex}");
+			}
+		}
+	}
+
+	public class UploadResult
+	{
+		public string FileName { get; set; }
+		public string FilePath { get; set; }
+	}
+
+    CreateExpenseClaimDto model = new();
+    // display placeholders for header (in a real app these would come from auth/profile)
+    private string StaffName = string.Empty;
+    private string StaffId = string.Empty;
+    private string StaffNameDisplay => string.IsNullOrWhiteSpace(StaffName) ? "CBS Test A" : StaffName;
+    private string StaffIdDisplay => string.IsNullOrWhiteSpace(StaffId) ? "0010" : StaffId;
+    private string CurrentDate { get; set; } = DateTime.Now.ToString("dd/MM/yyyy");
+    // GST percent selection
+    private decimal GstPercent { get; set; } = 0.08m;
+    private decimal GstAmount => Math.Round(TotalAmount * GstPercent, 2);
+    private decimal GrandTotal => Math.Round(TotalAmount + GstAmount, 2);
+
+    async Task AddItem()
+    {
+        if (model.Items == null)
+        {
+            model.Items = new List<ExpenseItemDto>();
+        }
+
+        model.Items.Add(new ExpenseItemDto
+        {
+            Category = currentItem.Category,
+            Description = currentItem.Description,
+            Amount = currentItem.Amount,
+            IsGstApplicable = currentItem.IsGstApplicable
+        });
+
+        currentItem = new ExpenseItemDto();
+        await Task.CompletedTask;
+    }
+
+    void RemoveItem(ExpenseItemDto item)
+    {
+        model.Items?.Remove(item);
+    }
+
+    void ResetForm()
+    {
+        model = new CreateExpenseClaimDto();
+        uploadedFiles.Clear();
+        currentItem = new ExpenseItemDto();
+        SelectedCurrency = null;
+    }
+
+    private decimal TotalAmount => model.Items?.Sum(i => i.Amount) ?? 0m;
+
+	async Task HandleSubmit()
+	{
+		// await Http.PostAsJsonAsync("api/ExpenseClaims", model);
+
+		await ClaimService.CreateAsync(model, "user");
+
+		// Optional: navigate to list page
+		NavigationManager.NavigateTo("/claims/list");
+	}
+
+	private List<Crurency> Currencies = new List<Crurency>
+	{
+		new Crurency { Id = "LKR", Name = "LKR" },
+		new Crurency { Id = "USD", Name = "USD" },
+		new Crurency { Id = "MVR", Name = "MVR" }
+	};
+
+	public class Crurency
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+	}
+
+	private List<ExpCategory> ExpCategories = new List<ExpCategory>
+	{
+		new ExpCategory { Id = "1", Name = "Trnsport" },
+		new ExpCategory { Id = "2", Name = "Meals" },
+		new ExpCategory { Id = "3", Name = "Utility" }
+	};
+
+	public class ExpCategory
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+	}
+
+	private List<AttachementType> AttachementTypes = new List<AttachementType>
+	{
+		new AttachementType { Id = "1", Name = "Trnsport Bill" },
+		new AttachementType { Id = "2", Name = "Meals Bill" },
+		new AttachementType { Id = "3", Name = "Utility Bill" }
+	};
+
+	public class AttachementType
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+	}
+}
