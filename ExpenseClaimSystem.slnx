@@ -1,9 +1,0 @@
-<Solution>
-  <Project Path="src/ExpenseClaimSystem.Application/ExpenseClaimSystem.Application.csproj" />
-  <Project Path="src/ExpenseClaimSystem.BlazorServer/ExpenseClaimSystem.BlazorServer.Client/ExpenseClaimSystem.BlazorServer.Client.csproj" />
-  <Project Path="src/ExpenseClaimSystem.BlazorServer/ExpenseClaimSystem.BlazorServer/ExpenseClaimSystem.BlazorServer.csproj" />
-  <Project Path="src/ExpenseClaimSystem.Domain/ExpenseClaimSystem.Domain.csproj" />
-  <Project Path="src/ExpenseClaimSystem.Infrastructure/ExpenseClaimSystem.Infrastructure.csproj" />
-  <Project Path="tests/ExpenseClaimSystem.IntegrationTests/ExpenseClaimSystem.IntegrationTests.csproj" Id="7a9144ab-f310-451e-8bdc-90d8f3757711" />
-  <Project Path="tests/ExpenseClaimSystem.UnitTests/ExpenseClaimSystem.UnitTests.csproj" Id="79440a75-479b-4bd7-bd43-0ac0106bf3eb" />
-</Solution>
