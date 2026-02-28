@@ -1,0 +1,135 @@
+﻿@page "/dashboard"
+@layout MainLayout
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Net.Http.Json
+@using System.Text
+@using System.Text.Json
+
+<FluentText Typo="Typography.H3">
+    Dashboard
+</FluentText>
+
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<FluentStack Orientation="Orientation.Vertical" Style="margin-top:18px; gap:18px;">
+
+    <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="16">
+        <FluentCard Style="flex:1; padding:18px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                <FluentText Typo="Typography.H5">Welcome back</FluentText>
+                <FluentText Typo="Typography.Body1">@DisplayGreeting</FluentText>
+                <div style="margin-top:8px; color:#666">Today: @CurrentDate</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <FluentButton Appearance="Appearance.Outline" @onclick="RefreshProfile">Refresh</FluentButton>
+                <FluentButton @onclick="GoToCreate">Create Claim</FluentButton>
+            </div>
+        </FluentCard>
+
+        <FluentCard Style="width:340px; padding:18px;">
+            <FluentText Typo="Typography.H6">User Info</FluentText>
+            <FluentStack VerticalGap="6" Style="margin-top:8px;">
+                <FluentText Typo="Typography.Body1"><b>Name:</b> @StaffName</FluentText>
+                <FluentText Typo="Typography.Body1"><b>Staff ID:</b> @StaffId</FluentText>
+                <FluentText Typo="Typography.Body1"><b>Department:</b> @Department</FluentText>
+            </FluentStack>
+
+@code {
+    private string StaffName { get; set; } = "-";
+    private string StaffId { get; set; } = "-";
+    private string Department { get; set; } = "-";
+    private string CurrentDate { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
+
+    private int TotalClaims { get; set; } = 0;
+    private int PendingApprovals { get; set; } = 0;
+    private int ApprovedThisMonth { get; set; } = 0;
+
+    private string DisplayGreeting => string.IsNullOrWhiteSpace(StaffName) || StaffName == "-" ? "Sign in to see your dashboard" : $"{StaffName}, here is your activity";
+
+    private class ProfileDto { public string fullName { get; set; } = ""; public string staffId { get; set; } = ""; public string department { get; set; } = ""; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Set date and attempt to load profile/stats
+        CurrentDate = DateTime.Now.ToString("yyyy-MM-dd");
+        await LoadProfileAsync();
+        // Demo values for counts; replace with API call if available
+        TotalClaims = 25;
+        PendingApprovals = 5;
+        ApprovedThisMonth = 12;
+    }
+
+    private async Task LoadProfileAsync()
+    {
+        try
+        {
+            var profile = await Http.GetFromJsonAsync<ProfileDto>("api/auth/profile");
+            if (profile != null)
+            {
+                if (!string.IsNullOrWhiteSpace(profile.fullName)) StaffName = profile.fullName;
+                if (!string.IsNullOrWhiteSpace(profile.staffId)) StaffId = profile.staffId;
+                if (!string.IsNullOrWhiteSpace(profile.department)) Department = profile.department;
+            }
+        }
+        catch
+        {
+            // ignore - profile endpoint may require auth or not be available
+        }
+    }
+
+    private async Task RefreshProfile()
+    {
+        await LoadProfileAsync();
+        StateHasChanged();
+    }
+
+    private void OpenHelp()
+    {
+        // placeholder: navigate to help or show modal
+        Nav.NavigateTo("/help", true);
+    }
+    private void GoToCreate()
+    {
+        Nav.NavigateTo("/claims/create");
+    }
+
+    private void GoToList()
+    {
+        Nav.NavigateTo("/claims/list");
+    }
+}
+        </FluentCard>
+    </FluentStack>
+
+    <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20">
+        <FluentCard Style="flex:1; padding:18px;">
+            <FluentText Typo="Typography.H6">Total Claims</FluentText>
+            <FluentText Typo="Typography.H2">@TotalClaims</FluentText>
+            <div style="margin-top:8px; color:#666">All-time total claims</div>
+        </FluentCard>
+
+        <FluentCard Style="flex:1; padding:18px;">
+            <FluentText Typo="Typography.H6">Pending Approvals</FluentText>
+            <FluentText Typo="Typography.H2">@PendingApprovals</FluentText>
+            <div style="margin-top:8px; color:#666">Claims pending action</div>
+        </FluentCard>
+
+        <FluentCard Style="flex:1; padding:18px;">
+            <FluentText Typo="Typography.H6">Approved This Month</FluentText>
+            <FluentText Typo="Typography.H2">@ApprovedThisMonth</FluentText>
+            <div style="margin-top:8px; color:#666">Approved in the last 30 days</div>
+        </FluentCard>
+    </FluentStack>
+
+    <FluentCard Style="padding:18px;">
+        <FluentText Typo="Typography.H6">Quick Actions</FluentText>
+            <div style="display:flex; gap:12px; margin-top:12px;">
+            <FluentButton @onclick="GoToCreate">New Claim</FluentButton>
+            <FluentButton Appearance="Appearance.Outline" @onclick="GoToList">View Claims</FluentButton>
+            <FluentButton Appearance="Appearance.Outline" @onclick="OpenHelp">Help</FluentButton>
+        </div>
+    </FluentCard>
+
+</FluentStack>
